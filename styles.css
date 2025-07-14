@@ -1,0 +1,283 @@
+/* Base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    direction: rtl;
+}
+
+.container {
+    width: 420px;
+    max-height: 600px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    padding: 0;
+}
+
+/* Header */
+.header {
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    color: white;
+    padding: 20px;
+    text-align: center;
+    border-radius: 12px 12px 0 0;
+}
+
+.header h1 {
+    font-size: 18px;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.status {
+    font-size: 12px;
+    opacity: 0.9;
+    padding: 4px 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    display: inline-block;
+}
+
+/* Options sections */
+.options-section {
+    padding: 20px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.options-section h2 {
+    font-size: 14px;
+    color: #1e3c72;
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+
+.checkbox-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 6px;
+    transition: background 0.2s;
+    font-size: 13px;
+}
+
+.checkbox-item:hover {
+    background: #f8f9fa;
+}
+
+.checkbox-item input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #2a5298;
+    cursor: pointer;
+}
+
+.checkbox-item span {
+    color: #495057;
+    font-weight: 500;
+}
+
+/* Progress section */
+.progress-section {
+    padding: 20px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4CAF50, #45a049);
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    text-align: center;
+    font-size: 12px;
+    color: #6c757d;
+}
+
+/* Download section */
+.download-section {
+    padding: 20px;
+}
+
+.download-section h2 {
+    font-size: 14px;
+    color: #1e3c72;
+    margin-bottom: 16px;
+    font-weight: 600;
+}
+
+.download-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.download-btn {
+    flex: 1;
+    padding: 12px 8px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    min-height: 60px;
+}
+
+.download-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.download-btn:active {
+    transform: translateY(0);
+}
+
+.download-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.pdf-btn {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white;
+}
+
+.pdf-btn:hover {
+    background: linear-gradient(135deg, #2563eb, #1e40af);
+}
+
+.excel-btn {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+}
+
+.excel-btn:hover {
+    background: linear-gradient(135deg, #0891b2, #0e7490);
+}
+
+.json-btn {
+    background: linear-gradient(135deg, #f3f4f6, #d1d5db);
+    color: #374151;
+    border: 1px solid #d1d5db;
+}
+
+.json-btn:hover {
+    background: linear-gradient(135deg, #e5e7eb, #c8d1dc);
+}
+
+.btn-icon {
+    font-size: 16px;
+}
+
+/* Footer */
+.footer {
+    padding: 16px 20px;
+    text-align: center;
+    background: #f8f9fa;
+    border-radius: 0 0 12px 12px;
+}
+
+.footer p {
+    font-size: 11px;
+    color: #6c757d;
+}
+
+/* Utility classes */
+.text-center {
+    text-align: center;
+}
+
+.mb-2 {
+    margin-bottom: 8px;
+}
+
+.mb-3 {
+    margin-bottom: 12px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .container {
+        width: 100%;
+        max-width: 420px;
+    }
+    
+    .checkbox-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .download-buttons {
+        flex-direction: column;
+    }
+}
+
+/* Loading animation */
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.6; }
+    100% { opacity: 1; }
+}
+
+.loading {
+    animation: pulse 1.5s infinite;
+}
+
+/* Custom scrollbar */
+.container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 6px;
+}
+
+.container::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 6px;
+}
+
+.container::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
+}
+
+/* Success/Error states */
+.success {
+    color: #28a745;
+}
+
+.error {
+    color: #dc3545;
+}

@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "Invoice Data Scraper",
+  "version": "1.0",
+  "description": "Scrape invoice data from Egyptian e-invoicing system and export to Excel, PDF, or JSON",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "downloads",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://invoicing.eta.gov.eg/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Invoice Data Scraper"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://invoicing.eta.gov.eg/*"],
+      "js": ["content.js"],
+      "css": ["styles.css"]
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["*.js", "*.css"],
+      "matches": ["https://invoicing.eta.gov.eg/*"]
+    }
+  ]
+}

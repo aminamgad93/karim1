@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Data Scraper</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧾 استخراج بيانات الفواتير</h1>
+            <div class="status" id="status">جاهز للاستخراج</div>
+        </div>
+
+        <div class="options-section">
+            <h2>📋 خيارات البيانات</h2>
+            <div class="checkbox-grid">
+                <label class="checkbox-item">
+                    <input type="checkbox" id="includeDate" checked>
+                    <span>تاريخ الفاتورة</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" id="includeInternalNumber" checked>
+                    <span>الرقم الداخلي</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" id="includeSellerTaxNumber" checked>
+                    <span>الرقم الضريبي للبائع</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" id="includeSellerName" checked>
+                    <span>اسم البائع</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" id="includeBuyerTaxNumber" checked>
+                    <span>الرقم الضريبي للمشتري</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" id="includeBuyerName" checked>
+                    <span>اسم المشتري</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" id="includeEmail">
+                    <span>البريد الإلكتروني</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" id="includeDocumentType" checked>
+                    <span>نوع المستند</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="options-section">
+            <h2>📁 خيارات التنظيم</h2>
+            <div class="checkbox-grid">
+                <label class="checkbox-item">
+                    <input type="checkbox" id="allPages" checked>
+                    <span>جميع الصفحات (<span id="totalCount">140</span> فاتورة)</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" id="separateFolders">
+                    <span>مجلد منفصل لكل فاتورة</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" id="combineAllItems">
+                    <span>دمج جميع العناصر في صف واحد</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="progress-section" id="progressSection" style="display: none;">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">جاري المعالجة...</div>
+        </div>
+
+        <div class="download-section">
+            <h2>📥 تحميل البيانات</h2>
+            <div class="download-buttons">
+                <button class="download-btn pdf-btn" id="downloadPDF">
+                    <span class="btn-icon">📄</span>
+                    <span>PDF</span>
+                </button>
+                <button class="download-btn excel-btn" id="downloadExcel">
+                    <span class="btn-icon">📊</span>
+                    <span>Excel</span>
+                </button>
+                <button class="download-btn json-btn" id="downloadJSON">
+                    <span class="btn-icon">📋</span>
+                    <span>JSON/XML</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>تم تطوير هذه الأداة لاستخراج بيانات الفواتير الإلكترونية</p>
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>

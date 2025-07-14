@@ -135,16 +135,18 @@ class InvoiceScraperBackground {
 
     extractInvoiceData(options) {
         const invoices = [];
-        const rows = document.querySelectorAll('.ms-DetailsRow');
+        const rows = document.querySelectorAll('[data-automationid="DetailsRow"]');
+        
+        console.log(`Background script found ${rows.length} invoice rows`);
         
         rows.forEach((row) => {
             try {
                 const invoice = {};
                 
-                // Extract UUID and Internal Number
+                // Extract UUID and Internal Number from the first column
                 const uuidCell = row.querySelector('[data-automation-key="uuid"]');
                 if (uuidCell) {
-                    const link = uuidCell.querySelector('a');
+                    const link = uuidCell.querySelector('a.griCellTitle');
                     if (link) {
                         invoice.uuid = link.textContent.trim();
                         invoice.link = link.href;
@@ -158,7 +160,7 @@ class InvoiceScraperBackground {
                 // Extract date and time
                 const dateCell = row.querySelector('[data-automation-key="dateTimeReceived"]');
                 if (dateCell) {
-                    const dateText = dateCell.querySelector('.griCellTitleGray')?.textContent.trim();
+                    const dateText = dateCell.querySelector('.griCellTitleGray')?.textContent?.trim();
                     const timeText = dateCell.querySelector('.griCellSubTitle')?.textContent.trim();
                     invoice.date = dateText;
                     invoice.time = timeText;
@@ -168,7 +170,7 @@ class InvoiceScraperBackground {
                 // Extract document type
                 const typeCell = row.querySelector('[data-automation-key="typeName"]');
                 if (typeCell) {
-                    const typeText = typeCell.querySelector('.griCellTitleGray')?.textContent.trim();
+                    const typeText = typeCell.querySelector('.griCellTitleGray')?.textContent?.trim();
                     const versionText = typeCell.querySelector('.griCellSubTitle')?.textContent.trim();
                     invoice.documentType = typeText;
                     invoice.version = versionText;
@@ -177,7 +179,7 @@ class InvoiceScraperBackground {
                 // Extract total value
                 const totalCell = row.querySelector('[data-automation-key="total"]');
                 if (totalCell) {
-                    const totalText = totalCell.querySelector('.griCellTitleGray')?.textContent.trim();
+                    const totalText = totalCell.querySelector('.griCellTitleGray')?.textContent?.trim();
                     invoice.totalValue = totalText;
                 }
                 
@@ -185,7 +187,7 @@ class InvoiceScraperBackground {
                 const issuerCell = row.querySelector('[data-automation-key="issuerName"]');
                 if (issuerCell) {
                     const issuerName = issuerCell.querySelector('.griCellTitleGray')?.textContent.trim();
-                    const issuerTaxNumber = issuerCell.querySelector('.griCellSubTitle')?.textContent.trim();
+                    const issuerTaxNumber = issuerCell.querySelector('.griCellSubTitle')?.textContent?.trim();
                     invoice.sellerName = issuerName;
                     invoice.sellerTaxNumber = issuerTaxNumber;
                 }
@@ -194,7 +196,7 @@ class InvoiceScraperBackground {
                 const receiverCell = row.querySelector('[data-automation-key="receiverName"]');
                 if (receiverCell) {
                     const receiverName = receiverCell.querySelector('.griCellTitleGray')?.textContent.trim();
-                    const receiverTaxNumber = receiverCell.querySelector('.griCellSubTitle')?.textContent.trim();
+                    const receiverTaxNumber = receiverCell.querySelector('.griCellSubTitle')?.textContent?.trim();
                     invoice.buyerName = receiverName;
                     invoice.buyerTaxNumber = receiverTaxNumber;
                 }
@@ -202,7 +204,7 @@ class InvoiceScraperBackground {
                 // Extract submission info
                 const submissionCell = row.querySelector('[data-automation-key="submission"]');
                 if (submissionCell) {
-                    const submissionLink = submissionCell.querySelector('a');
+                    const submissionLink = submissionCell.querySelector('a.griCellTitle');
                     if (submissionLink) {
                         invoice.submissionId = submissionLink.textContent.trim();
                         invoice.submissionLink = submissionLink.href;
@@ -212,7 +214,7 @@ class InvoiceScraperBackground {
                 // Extract status
                 const statusCell = row.querySelector('[data-automation-key="status"]');
                 if (statusCell) {
-                    const statusText = statusCell.querySelector('.textStatus')?.textContent.trim();
+                    const statusText = statusCell.querySelector('.textStatus')?.textContent?.trim();
                     invoice.status = statusText;
                 }
                 
@@ -228,6 +230,7 @@ class InvoiceScraperBackground {
             }
         });
         
+        console.log(`Background script extracted ${invoices.length} invoices`);
         return invoices;
     }
 

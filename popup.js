@@ -69,18 +69,8 @@ class InvoiceScraperPopup {
     scrapeInvoiceData(options) {
         const invoices = [];
         
-        // Try different selectors for the invoice rows
-        let rows = document.querySelectorAll('.ms-DetailsRow');
-        
-        if (rows.length === 0) {
-            // Try alternative selectors
-            rows = document.querySelectorAll('[data-automationid="DetailsRow"]');
-        }
-        
-        if (rows.length === 0) {
-            // Try table rows
-            rows = document.querySelectorAll('tr[role="row"]');
-        }
+        // Look for the correct invoice rows in the Egyptian e-invoicing system
+        let rows = document.querySelectorAll('[data-automationid="DetailsRow"]');
         
         console.log(`Found ${rows.length} rows`);
         
@@ -88,10 +78,10 @@ class InvoiceScraperPopup {
             try {
                 const invoice = {};
                 
-                // Extract UUID and Internal Number
+                // Extract UUID and Internal Number from the first column
                 const uuidCell = row.querySelector('[data-automation-key="uuid"]');
                 if (uuidCell) {
-                    const link = uuidCell.querySelector('a');
+                    const link = uuidCell.querySelector('a.griCellTitle');
                     if (link) {
                         invoice.uuid = link.textContent.trim();
                         invoice.link = link.href;
@@ -105,7 +95,7 @@ class InvoiceScraperPopup {
                 // Extract date and time
                 const dateCell = row.querySelector('[data-automation-key="dateTimeReceived"]');
                 if (dateCell) {
-                    const dateText = dateCell.querySelector('.griCellTitleGray')?.textContent.trim();
+                    const dateText = dateCell.querySelector('.griCellTitleGray')?.textContent?.trim();
                     const timeText = dateCell.querySelector('.griCellSubTitle')?.textContent.trim();
                     invoice.date = dateText;
                     invoice.time = timeText;
@@ -114,7 +104,7 @@ class InvoiceScraperPopup {
                 // Extract document type
                 const typeCell = row.querySelector('[data-automation-key="typeName"]');
                 if (typeCell) {
-                    const typeText = typeCell.querySelector('.griCellTitleGray')?.textContent.trim();
+                    const typeText = typeCell.querySelector('.griCellTitleGray')?.textContent?.trim();
                     const versionText = typeCell.querySelector('.griCellSubTitle')?.textContent.trim();
                     invoice.documentType = typeText;
                     invoice.version = versionText;
@@ -123,7 +113,7 @@ class InvoiceScraperPopup {
                 // Extract total value
                 const totalCell = row.querySelector('[data-automation-key="total"]');
                 if (totalCell) {
-                    const totalText = totalCell.querySelector('.griCellTitleGray')?.textContent.trim();
+                    const totalText = totalCell.querySelector('.griCellTitleGray')?.textContent?.trim();
                     invoice.totalValue = totalText;
                 }
                 
@@ -131,7 +121,7 @@ class InvoiceScraperPopup {
                 const issuerCell = row.querySelector('[data-automation-key="issuerName"]');
                 if (issuerCell) {
                     const issuerName = issuerCell.querySelector('.griCellTitleGray')?.textContent.trim();
-                    const issuerTaxNumber = issuerCell.querySelector('.griCellSubTitle')?.textContent.trim();
+                    const issuerTaxNumber = issuerCell.querySelector('.griCellSubTitle')?.textContent?.trim();
                     invoice.sellerName = issuerName;
                     invoice.sellerTaxNumber = issuerTaxNumber;
                 }
@@ -140,7 +130,7 @@ class InvoiceScraperPopup {
                 const receiverCell = row.querySelector('[data-automation-key="receiverName"]');
                 if (receiverCell) {
                     const receiverName = receiverCell.querySelector('.griCellTitleGray')?.textContent.trim();
-                    const receiverTaxNumber = receiverCell.querySelector('.griCellSubTitle')?.textContent.trim();
+                    const receiverTaxNumber = receiverCell.querySelector('.griCellSubTitle')?.textContent?.trim();
                     invoice.buyerName = receiverName;
                     invoice.buyerTaxNumber = receiverTaxNumber;
                 }
@@ -148,7 +138,7 @@ class InvoiceScraperPopup {
                 // Extract submission info
                 const submissionCell = row.querySelector('[data-automation-key="submission"]');
                 if (submissionCell) {
-                    const submissionLink = submissionCell.querySelector('a');
+                    const submissionLink = submissionCell.querySelector('a.griCellTitle');
                     if (submissionLink) {
                         invoice.submissionId = submissionLink.textContent.trim();
                         invoice.submissionLink = submissionLink.href;
@@ -158,12 +148,15 @@ class InvoiceScraperPopup {
                 // Extract status
                 const statusCell = row.querySelector('[data-automation-key="status"]');
                 if (statusCell) {
-                    const statusText = statusCell.querySelector('.textStatus')?.textContent.trim();
+                    const statusText = statusCell.querySelector('.textStatus')?.textContent?.trim();
                     invoice.status = statusText;
                 }
                 
+                // Add row index for debugging
+                invoice.rowIndex = index + 1;
+                
                 // Only add if we have at least UUID or internal number
-                if (invoice.uuid || invoice.internalNumber) {
+                if (invoice.uuid && invoice.uuid.length > 0) {
                     invoices.push(invoice);
                 }
                 
@@ -174,6 +167,11 @@ class InvoiceScraperPopup {
         
         console.log(`Extracted ${invoices.length} invoices`);
         return invoices;
+    }
+
+    // Helper function to safely get text content
+    getTextContent(element) {
+        return element ? element.textContent?.trim() || '' : '';
     }
 
     async generateFile(data, format, options) {

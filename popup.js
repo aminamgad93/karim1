@@ -69,103 +69,203 @@ class InvoiceScraperPopup {
     scrapeInvoiceData(options) {
         const invoices = [];
         
-        // Look for the correct invoice rows in the Egyptian e-invoicing system
-        let rows = document.querySelectorAll('[data-automationid="DetailsRow"]');
+        // Look for invoice rows in the Egyptian e-invoicing system
+        let rows = document.querySelectorAll('div[data-automationid="DetailsRow"]');
         
         console.log(`Found ${rows.length} rows`);
+        
+        // If no rows found, try alternative selector
+        if (rows.length === 0) {
+            rows = document.querySelectorAll('.ms-DetailsRow');
+            console.log(`Alternative selector found ${rows.length} rows`);
+        }
+        
+        // If still no rows, try looking for the list container
+        if (rows.length === 0) {
+            const listContainer = document.querySelector('.ms-DetailsList');
+            if (listContainer) {
+                rows = listContainer.querySelectorAll('[role="row"]');
+                console.log(`Role-based selector found ${rows.length} rows`);
+            }
+        }
         
         rows.forEach((row, index) => {
             try {
                 const invoice = {};
                 
-                // Extract UUID and Internal Number from the first column
-                const uuidCell = row.querySelector('[data-automation-key="uuid"]');
+                // Extract UUID and Internal Number - try multiple selectors
+                let uuidCell = row.querySelector('[data-automation-key="uuid"]');
+                if (!uuidCell) {
+                    uuidCell = row.querySelector('.recentDoc-internlId');
+                }
+                if (!uuidCell) {
+                    uuidCell = row.querySelector('.items-uuid_internal');
+                }
+                
                 if (uuidCell) {
-                    const link = uuidCell.querySelector('a.griCellTitle');
+                    const link = uuidCell.querySelector('a.griCellTitle') || uuidCell.querySelector('a');
                     if (link) {
                         invoice.uuid = link.textContent.trim();
                         invoice.link = link.href;
                     }
-                    const internalNumber = uuidCell.querySelector('.griCellSubTitle');
+                    const internalNumber = uuidCell.querySelector('.griCellSubTitle') || uuidCell.querySelector('.griCellSubTitle');
                     if (internalNumber) {
                         invoice.internalNumber = internalNumber.textContent.trim();
                     }
                 }
                 
-                // Extract date and time
-                const dateCell = row.querySelector('[data-automation-key="dateTimeReceived"]');
-                if (dateCell) {
-                    const dateText = dateCell.querySelector('.griCellTitleGray')?.textContent?.trim();
-                    const timeText = dateCell.querySelector('.griCellSubTitle')?.textContent.trim();
-                    invoice.date = dateText;
-                    invoice.time = timeText;
+                // Extract date and time - try multiple selectors
+                let dateCell = row.querySelector('[data-automation-key="dateTimeReceived"]');
+                if (!dateCell) {
+                    // Look for cells containing date-like content
+                    const cells = row.querySelectorAll('.ms-DetailsRow-cell');
+                    for (let cell of cells) {
+                        const text = cell.textContent;
+                        if (text.includes('٢٠٢٥') || text.includes('م') || text.includes('ص')) {
+                            dateCell = cell;
+                            break;
+                        }
+                    }
                 }
                 
-                // Extract document type
-                const typeCell = row.querySelector('[data-automation-key="typeName"]');
+                if (dateCell) {
+                    const dateText = dateCell.querySelector('.griCellTitleGray')?.textContent?.trim() || '';
+                    const timeText = dateCell.querySelector('.griCellSubTitle')?.textContent?.trim() || '';
+                    invoice.date = dateText;
+                    invoice.time = timeText;
+                    invoice.fullDateTime = `${dateText} ${timeText}`.trim();
+                }
+                
+                // Extract document type - try multiple selectors
+                let typeCell = row.querySelector('[data-automation-key="typeName"]');
+                if (!typeCell) {
+                    typeCell = row.querySelector('.recentDoc-type');
+                }
+                
                 if (typeCell) {
-                    const typeText = typeCell.querySelector('.griCellTitleGray')?.textContent?.trim();
-                    const versionText = typeCell.querySelector('.griCellSubTitle')?.textContent.trim();
+                    const typeText = typeCell.querySelector('.griCellTitleGray')?.textContent?.trim() || '';
+                    const versionText = typeCell.querySelector('.griCellSubTitle')?.textContent?.trim() || '';
                     invoice.documentType = typeText;
                     invoice.version = versionText;
                 }
                 
-                // Extract total value
-                const totalCell = row.querySelector('[data-automation-key="total"]');
+                // Extract total value - try multiple selectors
+                let totalCell = row.querySelector('[data-automation-key="total"]');
+                if (!totalCell) {
+                    // Look for cells with currency-like content
+                    const cells = row.querySelectorAll('.ms-DetailsRow-cell');
+                    for (let cell of cells) {
+                        const text = cell.textContent;
+                        if (text.includes('٬') || text.includes('٫') || /\d+/.test(text)) {
+                            totalCell = cell;
+                            break;
+                        }
+                    }
+                }
+                
                 if (totalCell) {
-                    const totalText = totalCell.querySelector('.griCellTitleGray')?.textContent?.trim();
+                    const totalText = totalCell.querySelector('.griCellTitleGray')?.textContent?.trim() || totalCell.textContent?.trim();
                     invoice.totalValue = totalText;
                 }
                 
-                // Extract issuer (seller) info
-                const issuerCell = row.querySelector('[data-automation-key="issuerName"]');
+                // Extract issuer (seller) info - try multiple selectors
+                let issuerCell = row.querySelector('[data-automation-key="issuerName"]');
                 if (issuerCell) {
-                    const issuerName = issuerCell.querySelector('.griCellTitleGray')?.textContent.trim();
-                    const issuerTaxNumber = issuerCell.querySelector('.griCellSubTitle')?.textContent?.trim();
+                    const issuerName = issuerCell.querySelector('.griCellTitleGray')?.textContent?.trim() || '';
+                    const issuerTaxNumber = issuerCell.querySelector('.griCellSubTitle')?.textContent?.trim() || '';
                     invoice.sellerName = issuerName;
                     invoice.sellerTaxNumber = issuerTaxNumber;
                 }
                 
-                // Extract receiver (buyer) info
-                const receiverCell = row.querySelector('[data-automation-key="receiverName"]');
+                // Extract receiver (buyer) info - try multiple selectors
+                let receiverCell = row.querySelector('[data-automation-key="receiverName"]');
                 if (receiverCell) {
-                    const receiverName = receiverCell.querySelector('.griCellTitleGray')?.textContent.trim();
-                    const receiverTaxNumber = receiverCell.querySelector('.griCellSubTitle')?.textContent?.trim();
+                    const receiverName = receiverCell.querySelector('.griCellTitleGray')?.textContent?.trim() || '';
+                    const receiverTaxNumber = receiverCell.querySelector('.griCellSubTitle')?.textContent?.trim() || '';
                     invoice.buyerName = receiverName;
                     invoice.buyerTaxNumber = receiverTaxNumber;
                 }
                 
-                // Extract submission info
-                const submissionCell = row.querySelector('[data-automation-key="submission"]');
+                // Extract submission info - try multiple selectors
+                let submissionCell = row.querySelector('[data-automation-key="submission"]');
                 if (submissionCell) {
-                    const submissionLink = submissionCell.querySelector('a.griCellTitle');
+                    const submissionLink = submissionCell.querySelector('a.griCellTitle') || submissionCell.querySelector('a');
                     if (submissionLink) {
                         invoice.submissionId = submissionLink.textContent.trim();
                         invoice.submissionLink = submissionLink.href;
                     }
                 }
                 
-                // Extract status
-                const statusCell = row.querySelector('[data-automation-key="status"]');
+                // Extract status - try multiple selectors
+                let statusCell = row.querySelector('[data-automation-key="status"]');
+                if (!statusCell) {
+                    statusCell = row.querySelector('.doc-status');
+                }
+                
                 if (statusCell) {
-                    const statusText = statusCell.querySelector('.textStatus')?.textContent?.trim();
+                    const statusText = statusCell.querySelector('.textStatus')?.textContent?.trim() || statusCell.textContent?.trim();
                     invoice.status = statusText;
                 }
                 
-                // Add row index for debugging
+                // Add debugging info
                 invoice.rowIndex = index + 1;
                 
-                // Only add if we have at least UUID or internal number
-                if (invoice.uuid && invoice.uuid.length > 0) {
+                console.log(`Row ${index + 1}:`, invoice);
+                
+                // Only add if we have at least UUID, internal number, or some meaningful data
+                if ((invoice.uuid && invoice.uuid.length > 0) || 
+                    (invoice.internalNumber && invoice.internalNumber.length > 0) ||
+                    (invoice.totalValue && invoice.totalValue.length > 0)) {
                     invoices.push(invoice);
+                } else {
+                    console.log(`Skipping row ${index + 1} - no valid data found`);
                 }
                 
             } catch (error) {
-                console.error('Error extracting invoice data:', error);
+                console.error(`Error extracting invoice data from row ${index + 1}:`, error);
             }
         });
         
         console.log(`Extracted ${invoices.length} invoices`);
+        
+        // If still no invoices found, try a more generic approach
+        if (invoices.length === 0) {
+            console.log('Trying generic approach...');
+            const allLinks = document.querySelectorAll('a[href*="/documents/"]');
+            console.log(`Found ${allLinks.length} document links`);
+            
+            allLinks.forEach((link, index) => {
+                if (link.href.includes('/documents/') && !link.href.includes('/submissions/')) {
+                    const uuid = link.textContent.trim();
+                    if (uuid.length > 10) { // Basic validation for UUID length
+                        const row = link.closest('[data-automationid="DetailsRow"]') || link.closest('.ms-DetailsRow');
+                        const invoice = {
+                            uuid: uuid,
+                            link: link.href,
+                            rowIndex: index + 1
+                        };
+                        
+                        // Try to get additional data from the row
+                        if (row) {
+                            const cells = row.querySelectorAll('.ms-DetailsRow-cell');
+                            cells.forEach((cell, cellIndex) => {
+                                const text = cell.textContent.trim();
+                                if (text.includes('٬') || text.includes('٫')) {
+                                    invoice.totalValue = text;
+                                } else if (text.includes('٢٠٢٥')) {
+                                    invoice.date = text;
+                                }
+                            });
+                        }
+                        
+                        invoices.push(invoice);
+                    }
+                }
+            });
+            
+            console.log(`Generic approach found ${invoices.length} invoices`);
+        }
+        
         return invoices;
     }
 
